@@ -112,4 +112,24 @@ CREATE TRIGGER update_sale_made_pickup_date
 -- dealership is updated, we want to ensure that the website URL has the following format:
 -- http://www.carnivalcars.com/{name of the dealership with underscores separating words}.
 
+CREATE OR REPLACE FUNCTION format_dealership_webiste() 
+  RETURNS TRIGGER 
+  LANGUAGE PlPGSQL
+AS $$
+BEGIN
+-- 	NEW.website := CONCAT('http://www.carnivalcars.com/', REGEXP_REPLACE(LOWER(NEW.business_name), '( ){1,}', '_', 'g'));
+	NEW.website := CONCAT('http://www.carnivalcars.com/', REPLACE(LOWER(NEW.business_name), ' ', '_'));
+	
+	RETURN NEW;
+END;
+$$
 
+CREATE TRIGGER dealership_website
+BEFORE INSERT OR UPDATE
+ON dealerships
+FOR EACH ROW EXECUTE PROCEDURE format_dealership_webiste();
+
+INSERT INTO dealerships(business_name, phone, city, state, website, tax_id)
+VALUES ('New Dealership in Music City', '615-200-2000', 'Nashville', 'Tennessee', 'www.test.com', 'ab-200-2000');
+
+SELECT * FROM dealerships ORDER BY dealership_id DESC;
