@@ -99,8 +99,12 @@ ALTER TABLE vehicles
 ADD COLUMN is_sold boolean
 DEFAULT false;
 
+ALTER TABLE sales 
+ADD COLUMN returned boolean
+DEFAULT false;
+
 -- Create a procedure for selling a vehicle.
-CREATE PROCEDURE sell_vehicle(IN sold_vehicle_id integer)
+CREATE OR REPLACE PROCEDURE sell_vehicle(IN sold_vehicle_id integer)
 LANGUAGE plpgsql
 AS $$
 BEGIN
