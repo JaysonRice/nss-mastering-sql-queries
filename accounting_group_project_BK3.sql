@@ -75,4 +75,39 @@ CALL sell_vehicle (10);
 CALL return_sold_vehicle(10);
 
 
+-- Create a stored procedure with a transaction to handle hiring a new employee.
+-- Add a new record for the employee in the Employees table and add a record to 
+-- the Dealershipemployees table for the two dealerships the new employee will start at.
+
+CREATE OR REPLACE PROCEDURE hire_employee(IN first_name varchar, last_name varchar, email_address varchar,
+										 phone varchar, employee_type_id int, is_active boolean, 
+										 dealership_one int, dealership_two int)
+LANGUAGE plpgsql
+AS $$
+DECLARE 
+  NewEmployeeId integer;
+BEGIN
+	INSERT INTO employees(first_name,last_name,email_address,phone,employee_type_id,is_active)
+		VALUES
+		(first_name, last_name, email_address, phone, employee_type_id, is_active) 
+		RETURNING employee_id INTO NewEmployeeId;
+
+COMMIT;
+	INSERT INTO dealershipemployees(employee_id, dealership_id)
+		VALUES(NewEmployeeId, dealership_one);
+
+COMMIT;
+	INSERT INTO dealershipemployees(employee_id, dealership_id)
+		VALUES(NewEmployeeId, dealership_two);	
+END;
+$$;
+
+CALL hire_employee('Thomas', 'Dude', 'thomas@gmail.com', '604-976-5243', 6, true, 901, 3)
+
+select * from employees 
+order by employee_id desc
+
+select * from dealershipemployees 
+order by dealership_employee_id desc
+
 
